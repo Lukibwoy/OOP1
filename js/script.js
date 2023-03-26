@@ -96,36 +96,156 @@ ItemsMap.set(item5.id, item5)
 
 console.log(ItemsMap)
 
-// Zad 1.
-// Stwórz klasę, która będzie pełniła rolę wrappera (storage-a) konfiguracji połączeniowej z API. Klasa ta ma się nazywać MyRequest oraz przechowywać takie atrybuty jak:
-// URL address
-// Method (np. “GET”)
-// API Token
-// Obiekt tej klasy ma posiadać gettery oraz settery do odpowiednich pól. Zadbaj o poprawną enkapsulację.
+// Zad 2.
+// Stwórz klasę Teacher dziedziczącą po Person. W klasie Person mają znajdować się takie pola jak: name oraz surname. W Teacher zaimplementuj metodę teach, która otrzymuje stringa subject i wydrukuje:
 
-// Następnie stwórz klasę Sender, która będzie zawierała takie metody statyczne jak:
-// sendReq(request, destination), gdzie request to odpowiednio skonfigurowany obiekt wyżej utworzonej klasy; destination to obiekt niżej utworzonej klasy, do której będziemy kierowali request
+// <Teacher’s name and surname> is now teaching <subject>.
 
-// Następnie stwórz klasę ApiService, która będzie symulowała działanie API serwisu. Klasa ta ma zawierać:
+class Person {
+	constructor(name, surname) {
+		this.name = name
+		this.surname = surname
+	}
+}
 
-// statyczne listy:
+class Teacher extends Person {
+	teach(subject) {
+		console.log(`${this.name} ${this.surname} is now teaching ${subject}`)
+	}
+}
 
-// countries = [“Poland”, “Japan”, “Madagascar”, “Mali”, “Nepal”]
-// continents = [“European”, “Asia”, “Australia”, “Africa”, “Asia”]
+let newTeacher = new Teacher('Jan', 'Bąk')
+let newSubject = newTeacher.teach('Math')
 
-// statyczne pola:
-// key (pole to będzie weryfikowane z polem API Token z request)
+// Zad 3.
+// Stwórz klasę Account, która będzie przechowywała pola: balance, number (numer konta) oraz metody: deposit(value), withdraw(value) oraz gettery i settery dla wymienionych pól. Implementację metod deposit oraz withdraw pozostawiam Tobie. Pamiętaj o dodaniu odpowiednich walidacji w takich metodach (np. wpłacana wartość nie może być ujemna).
 
-// metody: getCountries, getContinents z parametrem request
-// Metody te będą odbierały wysyłany przez Sender obiekt typu Request, wyciągały z niego API Token, porównywały z polem statycznym - key. Jeżeli wartości te będą identyczne, to sprawdzamy również, czy methodType również pobrany z request, ma wartość równą GET. Jeżeli wszystkie te warunki zostaną spełnione, to wówczas metody mają zwracać odpowiednie listy (countries/continents). W przeciwnym razie zwracana lista ma być pusta.
+// Następnie stwórz dwie klasy dziedziczące po Account: SavingAccount oraz CurrentAccout.
 
-// class MyRequest {
+// Klasa SavingAccount powinna posiadać również pole: interest i metodę, która będzie odpowiednio zwiększała wartość przechowywanego atrybutu.
 
-// constructor(URL, Metod, API){
+// CurrentAccount powinien natomiast składać się z atrybutu overdraft_limit z metodą zwiększającą jego wartość.
 
-// }
+// Następnie stwórz klasę Bank, która będzie zawierała tablicę wielu obiektów Account (konkretnie CurrentAccout oraz SavingAccount). W banku stwórz metodę update, która będzie iterowała po każdym koncie i dodawała do niego dowolną wielkość depozytu. Dodatkowo, w przypadku obiektu typu SavingAccount, ma być zwiększane pole interest każdego konta o 5, a dla CurrentAccount - overdraft_limit o 10.
 
-// }
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
+
+class Account {
+	constructor(number, balance) {
+		this._number = number
+		this._balance = balance
+	}
+
+	deposit(value) {
+		if (value <= 0) {
+			console.log('Podana wartość jest zbyt mała')
+		}
+		this._balance += value
+	}
+
+	widthdraw(value) {
+		if (value > 10000) {
+			console.log('Zbyt duża kwota, wymagana autoryzacja banku')
+		}
+		this._balance -= value
+	}
+
+	get balance() {
+		return this._balance
+	}
+
+	set balance(value) {
+		this._balance += value
+	}
+
+	get number() {
+		return this._number
+	}
+
+	set number(value) {
+		this._number = value
+	}
+}
+
+class savingAccount extends Account {
+	constructor(interest) {
+		this.interest = interest
+	}
+	addInterest(interest) {}
+}
+
+class CurrentAccount extends Account {}
+
+// Zad 5.
+// Stwórz klasę Airplane z polem name oraz flagą isFlying (typ bool), która domyślnie jest ustawiana na false.
+// Utwórz dwa obiekty Airplane.
+// Korzystając z prototypu, dodaj do obiektów metodę takeOff, która będzie ustawiała flagę isFlying na true oraz land - setującą isFlying na false. Sprawdź, czy metody dodane dzięki prototypowi są prawidłowo wywoływane i realizują swoje założenia.
+
+function Airplane(name) {
+	this.name = name
+	this.isFlying = false
+}
+
+Airplane.prototype.takeOff = function () {
+	this.isFlying = true
+	console.log(`${this.name} has taken off`)
+}
+
+Airplane.prototype.land = function () {
+	this.isFlying = false
+	console.log(`${this.name} is going to land`)
+}
+
+const firstAirplane = new Airplane('TU-124')
+const secondAirplane = new Airplane('Boeing-301')
+
+firstAirplane.takeOff()
+secondAirplane.land()
+
+console.log(firstAirplane.isFlying)
+console.log(secondAirplane.isFlying)
+
+// Zad 6. (zewnętrzne źródło)
+//     - Write a Car constructor that initializes `model` and `milesPerGallon` from arguments.
+//     - All instances built with Car:
+//         + should initialize with an `tank` at 0
+//         + should initialize with an `odometer` at 0
+//     - Give cars the ability to get fueled with a `.fill(gallons)` method. Add the gallons to `tank`.
+//     - Give cars ability to `.drive(distance)`. The distance driven:
+//         + Should cause the `odometer` to go up.
+//         + Should cause the the `tank` to go down taking `milesPerGallon` into account.
+//     - A car which runs out of `fuel` while driving can't drive any more distance:
+//         + The `drive` method should return a string "I ran out of fuel at x miles!" x being `odometer`.
+
+class Car {
+	constructor(model, milesPerGallon) {
+		this.model = model
+		this.milesPerGallon = milesPerGallon
+		this.tank = 0
+		this.odometer = 0
+	}
+
+	fill(gallons) {
+		this.tank += gallons
+	}
+
+	drive(distance) {
+		const maxDistance = this.tank * this.milesPerGallon
+		if (distance > maxDistance) {
+			this.tank = 0
+			this.odometer += maxDistance
+			console.log(`I ran out of fuel at x miles! ${this.odometer} odometer`)
+		} else {
+			this.tank -= distance / this.milesPerGallon
+			this.odometer += distance
+		}
+	}
+}
+
+const Car1 = new Car('Opel', 20)
+Car1.fill(15)
+console.log(Car1.drive(300))
+console.log(Car1)
 
 // Zad 2.
 // Stwórz klasę WaterVassel, która będzie zawierała takie pola jak: id, volume (objętość naczynia), water_volume (objętość jaką zajmuje woda w obiekcie takie klasy).
@@ -133,30 +253,131 @@ console.log(ItemsMap)
 
 // Zdefiniuj zmienną water_canister = 1000, która będzie odzwierciedlała całkowitą do rozlania ilość wody między naczyniami. Proces rozlewania wody ma następować po kolei dla każdego z naczyń, dopóki nie zostaną one w pełni napełnione lub dopóki water_canister wyniesie 0.
 
-class WaterVassel {
-	let = (water_conister = 1000)
+// class WaterVassel {
+// 	let = (water_conister = 1000)
 
-	constructor(id, volume, water_volume) {
-		this.id = id
-		this.volume = volume
-		this.water_volume = water_volume
+// 	constructor(id, volume, water_volume) {
+// 		this.id = id
+// 		this.volume = volume
+// 		this.water_volume = water_volume
+// 	}
+// }
+
+// let = randomVessels = []
+
+// for (let i = 1; i <= 5; i++) {
+// 	let volume = Math.floor(Math.random() * (200 - 50 + 1) + 50)
+// 	randomVessels.push(i, volume, 0)
+// }
+
+// let actualVassel = 0
+
+// for (WaterLevel = 0; water_conister > 0 && WaterLevel < randomVessels; actualVassel++) {
+// 	let Vessel = randomVessels[actualVassel]
+// }
+
+// console.log(Vessel)
+
+// console.log(volume)
+
+// Zad 3
+// Operacje na frontendzie to nie tylko dbanie o odpowiedni wygląd strony, ale też często walidacja danych przed przekazaniem ich na backend.
+
+// Stwórz klasę User, która będzie zawierała takie atrybuty jak (pamiętaj o enkapsulacji):
+// name
+// surname
+// email
+// gender
+// password
+// date_joined (datę twórz z wbudowanej biblioteki Date)
+
+// Podczas ustawiania wartości tych pól, ma za każdym razem następować walidacja, czy zmienne te są poprawne. To, jakie warunki ma walidować system, zależy od kreatywności programisty. Przykładem może być sprawdzenia, czy hasło zawiera co najmniej 8 znaków (w tym co najmniej jedną wielką literę, jedną cyfrę i jeden znak specjalny). Do walidacji możesz wykorzystać ReGexa.
+
+class User {
+	#name
+	#surname
+	#email
+	#gender
+	#password
+	#date_joined
+
+	constructor(name, surname, email, gender, password) {
+		this.name = name
+		this.surname = surname
+		this.email = email
+		this.gender = gender
+		this.password = password
+		this.date_joined = new Date()
+	}
+
+	get name() {
+		return this.#name
+	}
+
+	get surname() {
+		return this.#surname
+	}
+
+	get email() {
+		return this.#email
+	}
+
+	get gender() {
+		return this.#gender
+	}
+
+	get password() {
+		return this.#password
+	}
+
+	get date_joined() {
+		return this.#date_joined
+	}
+
+	set name(value) {
+		if (!value) {
+			console.log('The field cannot be empty')
+		}
+		this.#name = value
+	}
+
+	set surname(value) {
+		if (!value) {
+			console.log('The field cannot be empty')
+		}
+		this.#surname = value
+	}
+
+	set email(value) {
+		const regex = /^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,15}$/
+		if (!value || !regex.test(value)) {
+			console.log('This is wrong format of email address')
+		}
+		this.#email = value
+	}
+
+	set gender(value) {
+		if (!value) {
+			console.log('The field cannot be empty')
+		}
+		this.#gender = value
+	}
+
+	set password(value) {
+		if (value < 8) {
+			console.log('This password is to short')
+		}
+
+		if (!/\d/.test(value)) {
+			console.log('The password does not contain a number')
+		}
+		this.#password = value
+	}
+
+	set date_joined(value) {
+		this.#date_joined = value
 	}
 }
 
-let = randomVessels = []
-
-for (let i = 1; i <= 5; i++) {
-	let volume = Math.floor(Math.random() * (200 - 50 + 1) + 50)
-	randomVessels.push(i, volume, 0)
-}
-
-let actualVassel = 0
-
-for (WaterLevel = 0; water_conister > 0 && WaterLevel < randomVessels; actualVassel++) {
-	let Vessel = randomVessels[actualVassel]
-	let freeSpace = water_conister
-}
-
-console.log(Vessel)
-
-console.log(volume)
+const getUser = new User('Jan', 'Kowalski', 'kowalski@o2.pl', 'male', 'xx112x5z')
+console.log(getUser)
