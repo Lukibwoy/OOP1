@@ -67,7 +67,7 @@ pusia.status()
 
 class Order {
 	static idNumber = 0
-
+	
 	constructor(Name, price) {
 		this.id = ++Order.idNumber
 		this.price = price
@@ -99,7 +99,7 @@ console.log(ItemsMap)
 // Zad 2.
 // Stwórz klasę Teacher dziedziczącą po Person. W klasie Person mają znajdować się takie pola jak: name oraz surname. W Teacher zaimplementuj metodę teach, która otrzymuje stringa subject i wydrukuje:
 
-// <Teacher’s name and surname> is now teaching <subject>.
+// <Teacher's name and surname> is now teaching <subject>.
 
 class Person {
 	constructor(name, surname) {
@@ -125,8 +125,6 @@ let newSubject = newTeacher.teach('Math')
 // Klasa SavingAccount powinna posiadać również pole: interest i metodę, która będzie odpowiednio zwiększała wartość przechowywanego atrybutu.
 
 // CurrentAccount powinien natomiast składać się z atrybutu overdraft_limit z metodą zwiększającą jego wartość.
-
-// Następnie stwórz klasę Bank, która będzie zawierała tablicę wielu obiektów Account (konkretnie CurrentAccout oraz SavingAccount). W banku stwórz metodę update, która będzie iterowała po każdym koncie i dodawała do niego dowolną wielkość depozytu. Dodatkowo, w przypadku obiektu typu SavingAccount, ma być zwiększane pole interest każdego konta o 5, a dla CurrentAccount - overdraft_limit o 10.
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
 
@@ -168,13 +166,56 @@ class Account {
 }
 
 class savingAccount extends Account {
-	constructor(interest) {
+	constructor(number, interest) {
+		super(number)
 		this.interest = interest
 	}
-	addInterest(interest) {}
+
+	addInterest() {
+		this._balance += this._balance * (this.interest * 100)
+	}
 }
 
-class CurrentAccount extends Account {}
+class CurrentAccount extends Account {
+	constructor(number, overdraftLimit) {
+		super(number)
+		this.overdraftLimit = overdraftLimit
+	}
+
+	increaseLimit(value) {
+		if (value <= 0) {
+			console.log('Wartość debetu jest zbyt mała')
+		} else {
+			this.overdraftLimit += value
+		}
+	}
+
+	setLimit(overdraft_limit) {
+		this.overdraftLimit = overdraft_limit
+	}
+}
+
+// Następnie stwórz klasę Bank, która będzie zawierała tablicę wielu obiektów Account (konkretnie CurrentAccout oraz SavingAccount). W banku stwórz metodę update, która będzie iterowała po każdym koncie i dodawała do niego dowolną wielkość depozytu. Dodatkowo, w przypadku obiektu typu SavingAccount, ma być zwiększane pole interest każdego konta o 5, a dla CurrentAccount - overdraft_limit o 10.
+
+class Bank {
+	constructor() {
+		this.accounts = []
+	}
+
+	createAccount(account) {
+		this.accounts.push(account)
+	}
+
+	update() {
+		this.accounts.forEach(account => {
+			account.deposit(Math.random() * 1000)
+		})
+	}
+
+	increaseInterest(interest) {
+		this.interest += interest * (interest * 0.05)
+	}
+}
 
 // Zad 5.
 // Stwórz klasę Airplane z polem name oraz flagą isFlying (typ bool), która domyślnie jest ustawiana na false.
@@ -381,3 +422,202 @@ class User {
 
 const getUser = new User('Jan', 'Kowalski', 'kowalski@o2.pl', 'male', 'xx112x5z')
 console.log(getUser)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Zad 1.
+// Stwórz klasę, która będzie pełniła rolę wrappera (storage-a) konfiguracji połączeniowej z API. Klasa ta ma się nazywać MyRequest oraz przechowywać takie atrybuty jak:
+// URL address
+// Method (np. “GET”)
+// API Token
+// Obiekt tej klasy ma posiadać gettery oraz settery do odpowiednich pól. Zadbaj o poprawną enkapsulację.
+
+// Następnie stwórz klasę Sender, która będzie zawierała takie metody statyczne jak:
+// sendReq(request, destination), gdzie request to odpowiednio skonfigurowany obiekt wyżej utworzonej klasy; destination to obiekt niżej utworzonej klasy, do której będziemy kierowali request
+
+// Następnie stwórz klasę ApiService, która będzie symulowała działanie API serwisu. Klasa ta ma zawierać:
+
+// statyczne listy:
+
+// countries = [“Poland”, “Japan”, “Madagascar”, “Mali”, “Nepal”]
+// continents = [“European”, “Asia”, “Australia”, “Africa”, “Asia”]
+
+// statyczne pola:
+// key (pole to będzie weryfikowane z polem API Token z request)
+
+// metody: getCountries, getContinents z parametrem request
+// Metody te będą odbierały wysyłany przez Sender obiekt typu Request, wyciągały z niego API Token, porównywały z polem statycznym - key. Jeżeli wartości te będą identyczne, to sprawdzamy również, czy methodType również pobrany z request, ma wartość równą GET. Jeżeli wszystkie te warunki zostaną spełnione, to wówczas metody mają zwracać odpowiednie listy (countries/continents). W przeciwnym razie zwracana lista ma być pusta.
+
+class MyRequest {
+	constructor(url, method, apiToken) {
+		this.url = url
+		this.method = method
+		this.apiToken = apiToken
+	}
+
+	get url() {
+		return this.url;
+	}
+
+	set url(url) {
+		this.url = url;
+	}
+
+	get method() {
+		return this.method;
+	}
+
+	set method(method) {
+		this.method = method;
+	}
+
+	get apiToken() {
+		return this.apiToken;
+	}
+
+	set apiToken(apiToken) {
+		this.apiToken = apiToken;
+	}
+}
+
+class apiService {
+	static countries = ['Poland', 'Japan', 'Madagascar', 'Mali', 'Nepal']
+	static continents = ['European', 'Asia', 'Australia', 'Africa', 'Asia']
+	static key = 'xyz'
+
+	getCountries(request) {
+		//sprawdzamy czy requesr.apiToken == apiService.key jeśli tak to znaczy że requeste jest zautoryzowany (i zwracamy listę krajóm) jeśli nie to rzecamy wyjątkiem albo pokazujemy błąd
+		if (request.apiToken === apiService.key && request.method === 'GET') {
+			return apiService.countries
+		}else{
+			return []
+		}
+	}
+	getContinentals(request) {
+		if (request.apiToken === apiService.key && request.method === 'GET') {
+			return apiService.continents
+		}
+		else{
+			return []
+		}
+	}
+}
+
+class Sender {
+	static sendReq(request, destination) {
+		//ponieważ destination jest instancją apService  to możemy wywoływać jego metody
+		//destination.getContinentals
+
+		destination.getContinentals
+
+	}
+	// implementacja sendReq
+}
+
+const request = new MyRequest('http://localhost/countries', 'GET', 'xyz')
+const service = new apiService()
+const response = Sender.sendReq(request, service)
+console.log(response) // [POland...]
+
+// dodatkowy eksperyment - zrobić request z takim tokenem który nie jest taki sam jak key w klasie apiService i wówczas response nie powinien zawierać danych
+
+// // Zad 4
+// Wyobraź sobie, że poniższa lista reprezentuje nierelacyjną bazę danych użytkowników (jest to specjalny sposób przechowywania danych, strukturalnie może być bardzo podobny do formatu JSON).
+
+// 	Stwórz klasę User, która będzie zawierała takie pola i metody jak:
+
+// #id, username, email, #password, #createdAt, #isLoggedIn
+
+class User2 {
+	#id
+	#password
+	#createdAt
+	#isLoggedIn
+
+	constructor(id, username, email, password, createdAt, isLoggedIn) {
+		this.#id = id
+		this.username = username
+		this.email = email
+		this.#password = password
+		this.#createdAt = createdAt
+	}
+
+	// singIn - umożliwiać ona będzie logowanie się użytkownika na podstawie informacji zawartych w bazie (wyżej utworzonej liście users)
+	signIn(username, password) {
+		for (let i = 0; i < users.length; i++) {
+			if (users[i].username === username && users[i].#password === password) {
+				users[i].isLoggedIn = true
+				return 'Użytkownik poprawnie zalogowany'
+			}
+		}
+		return 'Bląd logowanai'
+	}
+
+	// countLikes - metoda ta będzie przeszukiwać listę products i wyświetlać nazwy produktów, które polubił dany użytkownik (zauważ, że informacje o polubieniach przechowujemy wewnątrz pola likes z rekordu każdego produktu)
+	countLikes() {
+		for (let i = 0; i < products.length; i++) {
+			if (products[i].likes.includes(this.#id)) {
+				console.log(products[i].name)
+			}	
+		}
+	}
+
+	// rateProduct - która przyjmować będzie id produktu wraz z oceną, którą użytkownik chce przypisać
+	rateProduct(productId, rating) {
+		for (let i = 0; i < products.length; i++) {
+			if (products[i]._id === productId) {
+				products[i].ratings.push({ userId: this.#id, rate: rating})
+				break
+			}else{
+				return 'Błędne id produktu'
+			}
+		}
+	}
+}
+
+//
+const users = [
+	new User2('ab12ex', 'Alex', 'alex@alex.com', '123123'),
+	new User2('fg12cy', 'Asab', 'asab@asab.com', '123456'),
+	new User2('zwf8md', 'Brook', 'brook@brook.com', '13111'),
+	new User2('eefamr', 'Martha', 'martha@martha.com', '123222'),
+	new User2('ghderc', 'Thomas', 'thomas@thomas.com', '123333'),
+]
+
+console.log(users[0].signIn('Alex', '123123'))
+
+//
+//
+const products = [
+	{
+		_id: 'eedfcf',
+		name: 'mobile phone',
+		description: 'Huawei Honor',
+		price: 200,
+		ratings: [
+			{ userId: 'fg12cy', rate: 5 },
+			{ userId: 'zwf8md', rate: 4.5 },
+		],
+		likes: [],
+	},
+	{
+		_id: 'aegfal',
+		name: 'Laptop',
+		description: 'MacPro: System Darwin',
+		price: 2500,
+		ratings: [],
+		likes: ['fg12cy'],
+	},
+	{
+		_id: 'hedfcg',
+		name: 'TV',
+		description: 'Smart TV:Procaster',
+		price: 400,
+		ratings: [{ userId: 'fg12cy', rate: 5 }],
+		likes: ['fg12cy'],
+	},
+]
+
+users[1].countLikes()
+console.log(users[1].rateProduct('eedfcf', 3));
+
